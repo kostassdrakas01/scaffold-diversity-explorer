@@ -45,14 +45,16 @@ def main():
     clusters = run_butina_clustering(fps, dist_cutoff=DIST_THRESHOLD)
     print(f"Identified {len(clusters)} distinct chemical clusters.")
 
-    # --- 5. Selection and Validation ---
+   # --- 5. Selection and Validation ---
+    print("Selecting diverse subset...")
     diverse_indices = [cluster[0] for cluster in clusters[:BUDGET]]
     diverse_df = df.iloc[diverse_indices].copy()
     diverse_fps = [fps[i] for i in diverse_indices]
     
+    # CALCULATE AND PRINT THIS FIRST
     div_score = get_internal_diversity(diverse_fps)
     print(f"Validation Metric: Mean Internal Tanimoto Distance = {div_score:.3f}")
-
+    
     # --- 6. Low-Dimensional Projection (t-SNE) ---
     print("Generating Chemical Space Visualization via t-SNE...")
     tsne = TSNE(n_components=2, perplexity=30, init='pca', random_state=42)
