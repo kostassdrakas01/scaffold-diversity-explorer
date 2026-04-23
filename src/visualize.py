@@ -3,7 +3,7 @@ import seaborn as sns
 from rdkit.Chem import Draw
 import os
 
-def plot_property_distributions(df, output_path):
+def plot_property_distributions(df, diverse_df, output_path):
     """
     Creates a grid of histograms to compare the properties 
     of the diverse subset vs. the total library.
@@ -13,9 +13,18 @@ def plot_property_distributions(df, output_path):
     axes = axes.flatten()
 
     for i, prop in enumerate(properties):
-        sns.histplot(df[prop], ax=axes[i], kde=True, color='blue', label='Full Library')
-        plt.legend()
+        sns.histplot(
+            df[prop], ax=axes[i], kde=True, color='blue', label='Full Library',
+            stat='density', alpha=0.4
+        )
+        sns.histplot(
+            diverse_df[prop], ax=axes[i], kde=True, color='crimson', label='Diverse Subset',
+            stat='density', alpha=0.4
+        )
         axes[i].set_title(f'Distribution of {prop}')
+        axes[i].legend()
+        axes[i].set_xlabel(prop)
+        axes[i].set_ylabel('Density')
         
     plt.tight_layout()
     plt.savefig(output_path)
