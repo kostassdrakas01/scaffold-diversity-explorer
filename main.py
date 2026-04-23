@@ -46,15 +46,20 @@ def main():
     print(f"Identified {len(clusters)} distinct chemical clusters.")
 
    # --- 5. Selection and Validation ---
-    print("Selecting diverse subset...")
+    print("DEBUG: Entering selection block...", flush=True)
+    
     diverse_indices = [cluster[0] for cluster in clusters[:BUDGET]]
     diverse_df = df.iloc[diverse_indices].copy()
     diverse_fps = [fps[i] for i in diverse_indices]
     
-    # CALCULATE AND PRINT THIS FIRST
-    div_score = get_internal_diversity(diverse_fps)
-    print(f"Validation Metric: Mean Internal Tanimoto Distance = {div_score:.3f}")
+    print(f"DEBUG: Selected {len(diverse_fps)} fingerprints. Calculating mean internal Tanimoto distance...", flush=True)
     
+    mean_internal_tanimoto_distance = get_internal_diversity(diverse_fps)
+    
+    print("\n" + "="*40)
+    print(f"Mean Internal Tanimoto Distance: {mean_internal_tanimoto_distance:.3f}")
+    print("="*40 + "\n", flush=True)
+
     # --- 6. Low-Dimensional Projection (t-SNE) ---
     print("Generating Chemical Space Visualization via t-SNE...")
     tsne = TSNE(n_components=2, perplexity=30, init='pca', random_state=42)
@@ -69,7 +74,7 @@ def main():
     plt.scatter(df.iloc[diverse_indices]['tsne_1'], df.iloc[diverse_indices]['tsne_2'], 
                 c='crimson', s=20, label='Diverse Subset', edgecolors='black', linewidth=0.5)
     
-    plt.title(f"Chemical Space Distribution (Mean Internal Distance: {div_score:.2f})")
+    plt.title(f"Chemical Space Distribution (Mean Internal Tanimoto Distance: {mean_internal_tanimoto_distance:.2f})")
     plt.legend()
     plt.savefig(f"{OUTPUT_DIR}/chemical_space_map.png", dpi=300)
     plt.close()
@@ -83,6 +88,7 @@ def main():
 
     # --- 8. Exporting Results ---
     diverse_df.to_csv(f"{OUTPUT_DIR}/diverse_subset_results.csv", index=False)
+    print(f"Mean Internal Tanimoto Distance: {mean_internal_tanimoto_distance:.3f}")
     print(f"Pipeline execution successful. Results exported to {OUTPUT_DIR}/")
 
 if __name__ == "__main__":
